@@ -40,28 +40,26 @@ jobs:
       - name: Push Docker image to Docker Hub
         run: docker push investorbeejay/my-app:latest
 
-#      - name: Install AWS CLI
-#        run: |
-#          sudo apt-get update
-#          sudo apt-get install -y awscli
-
       - name: Configure AWS CLI
         run: |
           aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws configure set default.region ${{ secrets.AWS_REGION }}
 
+      # This step connects to the EC2 instance (if needed)
       - name: Connect to EC2 Instance
-        uses: aws-actions/amazon-ec2-cnnect@v1
+        uses: aws-actions/amazon-ec2-connect@v1
         with:
-          instanceId: ${{secrets.EC2_INSTANCE_ID }}
-          key: ${{secrets.AWS_PRIVATE_KEY }}
-#          PRIVATE_KEY: ${{ secrets.AWS_PRIVATE_KEY }}
-        run: |
-          echo "$PRIVATE_KEY" > private_key.pem
-          chmod 400 "private_key.pem"
+          instance-id: ${{ secrets.EC2_INSTANCE_ID }}
+          ssh-public-key: ${{ secrets.AWS_PRIVATE_KEY }}
 
-          ssh -i "private_key.pem" ec2-35-94-121-169.us-west-2.compute.amazonaws.com << EOF
+      # This step handles SSH commands separately
+      - name: SSH into EC2 and Deploy
+        run: |
+          echo "${{ secrets.AWS_PRIVATE_KEY }}" > private_key.pem
+          chmod 400 private_key.pem
+
+          ssh -o StrictHostKeyChecking=no -i private_key.pem ubuntu@${{ secrets.EC2_PUBLIC_IP }} << EOF
             docker pull investorbeejay/my-app:latest
             docker stop my-app || true
             docker rm my-app || true
