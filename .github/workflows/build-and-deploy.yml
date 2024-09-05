@@ -51,9 +51,12 @@ jobs:
           aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws configure set default.region ${{ secrets.AWS_REGION }}
 
-      - name: Connect to AWS Instance as Root and Deploy Docker Image
-        env:
-          PRIVATE_KEY: ${{ secrets.AWS_PRIVATE_KEY }}
+      - name: Connect to EC2 Instance
+        uses: aws-actions/amazon-ec2-cnnect@v1
+        with:
+          instanceId: ${{secrets.EC2_INSTANCE_ID }}
+          key: ${{secrets.AWS_PRIVATE_KEY }}
+#          PRIVATE_KEY: ${{ secrets.AWS_PRIVATE_KEY }}
         run: |
           echo "$PRIVATE_KEY" > private_key.pem
           chmod 400 "private_key.pem"
