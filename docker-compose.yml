@@ -20,3 +20,4 @@ services:
       DATABASE_PASSWORD: password
     depends_on:
       - db
+      -
