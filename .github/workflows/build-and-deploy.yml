@@ -55,8 +55,8 @@ jobs:
         env:
           PRIVATE_KEY: ${{ secrets.AWS_PRIVATE_KEY }}
         run: |
-#          echo "$PRIVATE_KEY" > private_key.pem
-#          chmod 400 "Assignment.pem"
+          echo "$PRIVATE_KEY" > private_key.pem
+          chmod 400 "Assignment.pem"
 
           ssh -i "Assignment.pem" ubuntu@ec2-35-94-121-169.us-west-2.compute.amazonaws.com << EOF
             docker pull investorbeejay/my-app:latest
